@@ -1,0 +1,5 @@
+   base_resume.md
+   runs/*
+   !runs/.gitkeep
+   .obsidian/
+   .DS_Store
