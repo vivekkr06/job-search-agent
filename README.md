@@ -8,6 +8,26 @@ Job Search  ->  Fit Analyzer  ->  Resume Tailor  ->  Cover Letter
 
 An **Orchestrator** agent runs the four in order, validates each handoff, and pauses for your approval at two checkpoints (which job to analyze, and whether to continue after the fit score).
 
+## Install as a skill (recommended)
+
+`skills/job-search-pipeline/` packages the whole pipeline as a Claude skill, so Claude recognises requests like "how well do I fit this job?" or "tailor my resume for this posting" and runs the right stage.
+
+```
+skills/job-search-pipeline/
+├── SKILL.md            # orchestrator: setup check, handoff contract, checkpoints
+├── references/         # one file per stage, read only when that stage runs
+├── assets/             # blank base_resume template, example resume layout
+└── scripts/            # build_tracker.py
+```
+
+Add the `job-search-pipeline` folder as a skill in Claude, then work from a project folder that contains your `base_resume.md`. The skill reads and writes your files there; none of your data is stored in the skill.
+
+The `agents/` folder holds the original standalone prompts (v1) from the step-by-step build. They still work if you prefer to run one agent at a time, but `skills/` is the maintained version and includes later improvements (for example, essential requirements that your resume does not cover are treated as blockers).
+
+## Tracker
+
+Run `python3 build_tracker.py` in your project root to build `tracker.html` from the frontmatter in each `runs/*/summary.md`. Open it in a browser to filter by status, sort by score, and jump to each application's files. `tracker.md` is an Obsidian Dataview version of the same view.
+
 ## The agents
 
 | # | Agent | Reads | Writes |
