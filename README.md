@@ -6,6 +6,8 @@ A file-driven, multi-agent job search pipeline built with Claude. Each agent is 
 Job Search  ->  Fit Analyzer  ->  Resume Tailor  ->  Cover Letter
 ```
 
+An **Orchestrator** agent runs the four in order, validates each handoff, and pauses for your approval at two checkpoints (which job to analyze, and whether to continue after the fit score).
+
 ## The agents
 
 | # | Agent | Reads | Writes |
@@ -14,13 +16,21 @@ Job Search  ->  Fit Analyzer  ->  Resume Tailor  ->  Cover Letter
 | 2 | `agents/fit_analyzer.md` | `base_resume.md`, one job description | `runs/<date>_fit_<company>-<role>.md` |
 | 3 | `agents/resume_tailor.md` | `base_resume.md`, fit analysis, job description | `runs/<date>_resume_<company>-<role>.md` |
 | 4 | `agents/cover_letter.md` | `base_resume.md`, fit analysis, tailored resume, job description | `runs/<date>_coverletter_<company>-<role>.md` |
+| - | `agents/orchestrator.md` | all of the above, in order | `runs/<date>_<company>-<role>/` (one folder per application) |
 
 ## Setup
 
 1. Copy `base_resume.template.md` to `base_resume.md`.
 2. Fill in every `[placeholder]`. Be honest in **KNOWN GAPS**: the Fit Analyzer uses it to score accurately.
 3. Open this folder as a project in Claude (for example Cowork in the Claude desktop app) so the agents can read and write files here.
-4. Run the agents in order, one job at a time.
+4. Run `agents/orchestrator.md`. Choose `SEARCH` mode to find postings, or `DIRECT` mode and paste a job description.
+5. Review the files in the application's run folder before sending anything.
+
+You can also run any single agent on its own.
+
+### Required sections in `base_resume.md`
+
+The Orchestrator checks these section names before it starts, so keep them as they are in the template: `METADATA`, `WORK EXPERIENCE`, `SKILLS TAXONOMY`, `KNOWN GAPS`. Agents depend on them, and renaming one can silently drop information.
 
 ## Folder structure
 
@@ -28,9 +38,16 @@ Job Search  ->  Fit Analyzer  ->  Resume Tailor  ->  Cover Letter
 job-search-agent/
 ├── base_resume.template.md   # copy to base_resume.md and fill in
 ├── base_resume.md            # yours, gitignored
-├── agents/                   # the four agent prompts
-├── templates/                # clean resume layout (.docx) to use for final output
+├── agents/                   # the agent prompts, including the orchestrator
+├── templates/                # clean resume layout (.docx) for final output
 └── runs/                     # outputs, gitignored
+    ├── _searches/            # job search results, before you pick a job
+    └── 2026-10-31_company-role/   # one folder per application
+        ├── jd.md
+        ├── fit.md
+        ├── resume.md
+        ├── coverletter.md
+        └── summary.md        # frontmatter: company, role, score, verdict, status
 ```
 
 ## Resume layout template
